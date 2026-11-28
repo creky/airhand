@@ -77,6 +77,12 @@ class DesktopConsole extends ConsoleLink implements Backend {
     return unlistenLater(listen<Lang>("lang-changed", (e) => cb(e.payload)));
   }
 
+  // 换成物理像素交给 Rust：各系统怎么移、移不了时报错，见 src-tauri/src/pointer.rs
+  readonly warpPointer = (x: number, y: number) => {
+    const dpr = devicePixelRatio || 1;
+    return invoke<void>("warp_pointer", { x: Math.round(x * dpr), y: Math.round(y * dpr) });
+  };
+
   // 不直接用 setFullscreen：无边框窗口全屏时还要停用拖动边缘改大小（见 src-tauri/src/fullscreen.rs）
   setWindowFullscreen(on: boolean) {
     return invoke<void>("set_fullscreen", { on });
